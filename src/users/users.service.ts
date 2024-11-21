@@ -25,7 +25,7 @@ export class UsersService {
 
   async getAllUsers(): Promise<any> {
     try {
-      const data = await this.userModel.find().exec();
+      const data = await this.userModel.find().select('-password').exec();
       return {
         data,
       };

@@ -1,10 +1,17 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import * as dayjs from 'dayjs';
+import * as isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import * as isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { UsersModule } from './users/users.module';
 import { getDatabaseConfig } from './config';
 import { APP_FILTER } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
+import { TimekeepingModule } from './timekeeping/timekeeping.module';
+
+dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
 
 @Module({
   imports: [
@@ -17,6 +24,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     UsersModule,
     AuthModule,
+    TimekeepingModule,
   ],
   providers: [
     {
