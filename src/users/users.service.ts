@@ -23,16 +23,17 @@ export class UsersService {
     }
   }
 
-  async getAllUsers(): Promise<User[]> {
-    console.log('userModel', this.userModel);
+  async getAllUsers(): Promise<any> {
     try {
-      const data = await this.userModel.find().select('-password').exec();
-      // console.log('data', data);
-      return data;
+      const data = await this.userModel.find().exec();
+      return {
+        data,
+      };
     } catch (error) {
+      console.error('Error fetching users:', error);
       throw new HttpException(
-        error?.response?.data || error,
-        error?.response?.data?.statusCode || error?.statusCode || 400,
+        error?.response?.data || error.message,
+        error?.statusCode || 500,
       );
     }
   }
