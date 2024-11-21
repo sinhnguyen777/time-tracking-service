@@ -5,11 +5,16 @@ import {
   VERSION_NEUTRAL,
   VersioningType,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+
+  app.enableCors(configService.get('cors'));
+
   app.enableCors({
-    allowedHeaders: ['content-type'],
+    allowedHeaders: ['content-type', 'token', 'authorization'],
     origin: 'http://localhost:3000',
     credentials: true,
   });

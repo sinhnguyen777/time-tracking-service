@@ -15,7 +15,17 @@ dayjs.extend(isSameOrAfter);
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [
+        () => ({
+          cors: {
+            origin: 'http://localhost:3000',
+            credentials: true,
+          },
+        }),
+      ],
+    }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
