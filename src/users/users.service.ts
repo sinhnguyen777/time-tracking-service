@@ -30,7 +30,6 @@ export class UsersService {
         data,
       };
     } catch (error) {
-      console.error('Error fetching users:', error);
       throw new HttpException(
         error?.response?.data || error.message,
         error?.statusCode || 500,
