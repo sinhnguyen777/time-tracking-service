@@ -4,10 +4,12 @@ import { Model } from 'mongoose';
 import * as dayjs from 'dayjs';
 
 import { Timekeeping } from 'src/shared/schema/timekeeping.schema';
+import { User } from 'src/shared/schema/users.schema';
 
 @Injectable()
 export class TimekeepingService {
   constructor(
+    @InjectModel(User.name) private userModel: Model<any>,
     @InjectModel(Timekeeping.name) private timekeepingModel: Model<Timekeeping>,
   ) {}
 
@@ -167,6 +169,14 @@ export class TimekeepingService {
         .month(month - 1)
         .endOf('month');
 
+      // Lấy thông tin user từ collection users
+      const user = await this.userModel.findOne({ id: user_id });
+
+      if (!user) {
+        throw new HttpException('User not found', 404);
+      }
+
+      // Lấy dữ liệu chấm công theo user_id và khoảng thời gian
       const records = await this.timekeepingModel.find({
         user_id,
         date: { $gte: startDate.toDate(), $lte: endDate.toDate() },
@@ -178,6 +188,7 @@ export class TimekeepingService {
         return dayOfWeek >= 1 && dayOfWeek <= 5;
       });
 
+      // Tính toán dữ liệu
       const totalWorkingDays = filteredRecords.filter(
         (record) => record.status === 'working',
       ).length;
@@ -195,12 +206,25 @@ export class TimekeepingService {
         0,
       );
 
+      // Tính số ngày làm việc tiêu chuẩn (Thứ Hai - Thứ Sáu)
+      const standardWorkDays = this.calculateStandardWorkDays(
+        startDate,
+        endDate,
+      );
+
+      const totalDays = totalWorkingDays + totalLateDays;
+
       return {
         data: {
+          user_id,
+          name: user.full_name,
+          position: user.position,
+          standardWorkDays,
           totalWorkingDays,
           totalLateDays,
           totalAbsentDays,
           totalLateMinutes,
+          totalDays,
           records: filteredRecords,
         },
       };
@@ -276,5 +300,21 @@ export class TimekeepingService {
         error?.response?.data?.statusCode || error?.statusCode || 400,
       );
     }
+  }
+
+  private calculateStandardWorkDays(
+    startDate: dayjs.Dayjs,
+    endDate: dayjs.Dayjs,
+  ) {
+    let standardDays = 0;
+    let currentDay = startDate;
+
+    while (currentDay.isBefore(endDate) || currentDay.isSame(endDate, 'day')) {
+      if (currentDay.day() >= 1 && currentDay.day() <= 5) {
+        standardDays++;
+      }
+      currentDay = currentDay.add(1, 'day');
+    }
+    return standardDays;
   }
 }
