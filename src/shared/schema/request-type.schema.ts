@@ -8,7 +8,7 @@ export class RequestType extends Document {
   id: number;
 
   @Prop({ enum: Object.values(RequestStatusType) })
-  name: RequestStatusType;
+  name: RequestStatusType; // 'pending', 'approved', 'rejected'
 
   @Prop({ default: Date.now })
   created_at: Date;

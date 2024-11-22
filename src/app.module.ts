@@ -9,6 +9,7 @@ import { getDatabaseConfig } from './config';
 import { APP_FILTER } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { TimekeepingModule } from './timekeeping/timekeeping.module';
+import { RequestModule } from './request/request.module';
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
@@ -39,6 +40,7 @@ dayjs.extend(isSameOrAfter);
     UsersModule,
     AuthModule,
     TimekeepingModule,
+    RequestModule,
   ],
   providers: [
     {

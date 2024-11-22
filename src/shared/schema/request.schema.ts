@@ -24,17 +24,17 @@ export class Request extends Document {
   @Prop()
   note: string;
 
-  @Prop({ required: true })
+  @Prop({ type: Number, ref: 'User', required: true })
+  id_employee: number;
+
+  @Prop({ type: Number, ref: 'User', required: true })
   id_manager: number;
 
-  @Prop({ required: true })
-  id_employee: number;
+  @Prop({ type: Number, ref: 'RequestType', required: true })
+  id_request_type: number;
 
   @Prop()
   id_related_person: number;
-
-  @Prop({ required: true })
-  id_request_type: number;
 
   @Prop({ default: Date.now })
   created_at: Date;

@@ -97,7 +97,10 @@ export class TimekeepingService {
       });
 
       if (!record) {
-        throw new Error('You need to check-in first');
+        throw new HttpException(
+          'You need to check-in first',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       const checkOutTime = dayjs(); // Thời gian check-out hiện tại
@@ -121,6 +124,7 @@ export class TimekeepingService {
 
       return record.save();
     } catch (error) {
+      console.log('Error in checkOut API:', error.message);
       throw new HttpException(
         error?.response?.data || error,
         error?.response?.data?.statusCode || error?.statusCode || 400,
