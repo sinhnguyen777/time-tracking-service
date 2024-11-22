@@ -5,13 +5,13 @@ import {
   VERSION_NEUTRAL,
   VersioningType,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+// import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
+  // const configService = app.get(ConfigService);
 
-  app.enableCors(configService.get('cors'));
+  // app.enableCors(configService.get('cors'));
 
   app.enableCors({
     origin: [
