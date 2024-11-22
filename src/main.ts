@@ -14,8 +14,13 @@ async function bootstrap() {
   app.enableCors(configService.get('cors'));
 
   app.enableCors({
-    allowedHeaders: ['content-type', 'token', 'authorization'],
-    origin: 'http://localhost:3000',
+    origin: [
+      'http://localhost:3000',
+      'https://develop-time-tracking-ute.vercel.app/',
+      'https://time-tracking-ute.vercel.app/',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Accept, Authorization, authorization',
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe()); // Initialize global validation
