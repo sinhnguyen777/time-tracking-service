@@ -1,5 +1,7 @@
-import { Controller, Get, Post, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Param, Query, UseGuards } from '@nestjs/common';
 import { TimekeepingService } from './timekeeping.service';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { UserRequestInfo } from 'src/users/users.decorator';
 
 @Controller('timekeeping')
 export class TimekeepingController {
@@ -10,14 +12,16 @@ export class TimekeepingController {
     return this.timekeepingService.getTimekeepingByEmployee(user_id);
   }
 
-  @Post('check-in/:user_id')
-  async checkIn(@Param('user_id') user_id: number) {
-    return this.timekeepingService.checkIn(user_id);
+  @UseGuards(AuthGuard)
+  @Post('check-in')
+  async checkIn(@UserRequestInfo() user: any) {
+    return this.timekeepingService.checkIn(user.id);
   }
 
-  @Post('check-out/:user_id')
-  async checkOut(@Param('user_id') user_id: number) {
-    return this.timekeepingService.checkOut(user_id);
+  @UseGuards(AuthGuard)
+  @Post('check-out')
+  async checkOut(@UserRequestInfo() user: any) {
+    return this.timekeepingService.checkOut(user.id);
   }
 
   @Get('monthly-report/:user_id')
