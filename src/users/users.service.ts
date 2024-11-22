@@ -37,6 +37,23 @@ export class UsersService {
     }
   }
 
+  async getUserInfo(id: number): Promise<any> {
+    try {
+      const data = await this.userModel
+        .findOne({ id })
+        .select('-password')
+        .exec();
+      return {
+        data,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.data || error.message,
+        error?.statusCode || 500,
+      );
+    }
+  }
+
   async getUserById(id: number): Promise<User> {
     try {
       const user = await this.userModel.findById(id).exec();

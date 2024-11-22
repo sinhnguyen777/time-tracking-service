@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   CanActivate,
   ExecutionContext,
@@ -6,33 +5,48 @@ import {
   ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private readonly authService: AuthService,
     private readonly jwtService: JwtService,
+    private readonly reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = request.headers['authorization']?.split(' ')[1];
+    const token = request.headers['authorization']?.split('Bearer ')[1];
 
     if (!token) {
       throw new ForbiddenException('Không tìm thấy token');
     }
 
     try {
+      // Xác thực token
       const decoded = this.jwtService.verify(token);
-      const hasPermission = await this.authService.checkPermissions(
-        decoded.sub,
-        'required_permission_name', // Thay bằng quyền bạn muốn kiểm tra
+
+      // Gắn thông tin user vào request
+      request.user = {
+        id: decoded.sub,
+        role: decoded.role,
+      };
+
+      const requiredRoles = this.reflector.get<string[]>(
+        'roles',
+        context.getHandler(),
       );
 
-      return hasPermission;
+      if (requiredRoles?.length) {
+        if (!requiredRoles.includes(decoded.role)) {
+          throw new ForbiddenException('Bạn không có quyền truy cập');
+        }
+      }
+
+      return true;
     } catch (error) {
+      console.log('error', error);
       throw new UnauthorizedException('Thông tin xác thực không hợp lệ');
     }
   }
