@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as dayjs from 'dayjs';
@@ -13,8 +13,8 @@ export class TimekeepingService {
   // Check-in
   async checkIn(user_id: number): Promise<Timekeeping> {
     try {
-      const today = dayjs().startOf('day'); // Bắt đầu ngày hiện tại
-      const tomorrow = dayjs().endOf('day'); // Kết thúc ngày hiện tại
+      const today = dayjs().startOf('day');
+      const tomorrow = dayjs().endOf('day');
 
       const existingRecord = await this.timekeepingModel.findOne({
         user_id,
@@ -22,18 +22,34 @@ export class TimekeepingService {
       });
 
       if (existingRecord) {
-        throw new Error('You have already checked in today');
+        throw new HttpException(
+          'You have already checked in today',
+          HttpStatus.BAD_REQUEST,
+        );
       }
+
+      const checkInTime = dayjs(); // Thời gian check-in hiện tại
+      const workStartTime = dayjs().hour(9).minute(0); // Giờ bắt đầu làm việc
+
+      // Kiểm tra xem check-in có trễ không
+      const lateMinutes = checkInTime.isAfter(workStartTime)
+        ? checkInTime.diff(workStartTime, 'minute')
+        : 0;
+
+      console.log('lateMinutes', lateMinutes);
 
       const newCheckIn = new this.timekeepingModel({
         user_id,
         date: today.toDate(),
-        time_check_in: new Date(),
-        status: 'working',
+        time_check_in: checkInTime.toDate(),
+        status: lateMinutes > 0 ? 'late' : 'working', // Nếu trễ thì đánh dấu là 'late'
+        late_minutes: lateMinutes, // Lưu số phút trễ
       });
 
       return newCheckIn.save();
     } catch (error) {
+      console.error('Error in checkIn API:', error.message);
+
       throw new HttpException(
         error?.response?.data || error,
         error?.response?.data?.statusCode || error?.statusCode || 400,
@@ -56,15 +72,24 @@ export class TimekeepingService {
         throw new Error('You need to check-in first');
       }
 
-      const checkOutTime = dayjs();
-      const lateMinutes = Math.max(
-        0,
-        checkOutTime.diff(dayjs().hour(17).minute(0), 'minute'), // Giờ kết thúc làm việc là 17:00
-      );
+      const checkOutTime = dayjs(); // Thời gian check-out hiện tại
+      const workEndTime = dayjs().hour(18).minute(0); // Giờ kết thúc làm việc
+      // const lunchBreakEnd = dayjs().hour(12).minute(0); // Giờ kết thúc nghỉ trưa
+      const totalWorkTime = checkOutTime.diff(record.time_check_in, 'minute'); // Tính tổng thời gian làm việc
+
+      // Kiểm tra xem check-out có đủ 8 tiếng không
+      const requiredWorkTime = 8 * 60; // 8 tiếng làm việc = 480 phút
+      const workStatus =
+        totalWorkTime < requiredWorkTime ? 'incomplete' : 'complete'; // Nếu thiếu thời gian làm việc, đánh dấu là 'incomplete'
+
+      // Kiểm tra xem có check-out trước 18h không
+      const earlyCheckOut = checkOutTime.isBefore(workEndTime);
 
       record.time_check_out = checkOutTime.toDate();
-      record.status = lateMinutes > 0 ? 'late' : 'working';
-      record.late_minutes = lateMinutes;
+      record.status = earlyCheckOut ? 'early' : workStatus; // Nếu check-out trước 18h thì đánh dấu là 'early'
+      record.late_minutes = earlyCheckOut
+        ? workEndTime.diff(checkOutTime, 'minute')
+        : 0; // Tính số phút thiếu nếu check-out trước 18h
 
       return record.save();
     } catch (error) {
