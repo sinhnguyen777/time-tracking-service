@@ -4,7 +4,6 @@ import {
   IsString,
   IsNumber,
   MinLength,
-  IsISO8601,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -16,12 +15,10 @@ export class CreateRequestDto {
 
   @IsNotEmpty()
   @Type(() => Date)
-  @IsISO8601()
   time_start: Date;
 
   @IsNotEmpty()
   @Type(() => Date)
-  @IsISO8601()
   time_end: Date;
 
   @IsNotEmpty()

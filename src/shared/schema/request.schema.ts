@@ -4,9 +4,6 @@ import { Document } from 'mongoose';
 @Schema({ timestamps: true, collection: 'request' })
 export class Request extends Document {
   @Prop({ required: true })
-  id: number;
-
-  @Prop({ required: true })
   code_request: string;
 
   @Prop({ required: true })

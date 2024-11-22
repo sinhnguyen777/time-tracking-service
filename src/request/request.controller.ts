@@ -10,28 +10,36 @@ import {
 } from '@nestjs/common';
 import { RequestService } from './request.service';
 import { AuthGuard } from '../auth/auth.guard';
-import { RolesGuard } from 'src/auth/role.guard';
 import {
   ApproveRequestDto,
   CreateRequestDto,
   PaginationDto,
 } from './request.dto';
 import { Roles } from 'src/shared/common';
+import { RequestGuard } from './request.guard';
+import { UserRequestInfo, UserRoleInfo } from 'src/users/users.decorator';
+import { RolesGuard } from 'src/auth/role.guard';
 
-@Controller('requests')
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(AuthGuard, RolesGuard, RequestGuard)
+@Controller('request')
 export class RequestController {
   constructor(private readonly requestService: RequestService) {}
 
-  @Post()
-  @Roles('employee') // Chỉ employee được phép tạo request
-  createRequest(@Body() createRequestDto: CreateRequestDto) {
-    return this.requestService.createRequest(createRequestDto);
+  @Post('create-request')
+  // @Roles('employee') // Chỉ employee được phép tạo request
+  createRequest(
+    @UserRequestInfo() user: any,
+    @Body() createRequestDto: CreateRequestDto,
+  ): Promise<any> {
+    return this.requestService.createRequest({
+      ...createRequestDto,
+      id_employee: user.id,
+    });
   }
 
-  @Get()
+  @Get('all-request')
   @Roles('manager', 'HR') // Chỉ manager hoặc HR được phép xem danh sách request
-  getRequests(@Query('status') status: string) {
+  getRequests(@Query('status') status: string): Promise<any> {
     return this.requestService.getRequests(status);
   }
 
@@ -40,24 +48,22 @@ export class RequestController {
   approveRequest(
     @Param('id') id: number,
     @Body() approveRequestDto: ApproveRequestDto,
-  ) {
+  ): Promise<any> {
     return this.requestService.approveRequest(id, approveRequestDto);
   }
 
   @Patch(':id/reject')
   @Roles('manager') // Chỉ manager được phép từ chối request
-  rejectRequest(@Param('id') id: number) {
+  rejectRequest(@Param('id') id: number): Promise<any> {
     return this.requestService.rejectRequest(id);
   }
 
+  @UseGuards(RequestGuard)
   @Get('employee')
   async getRequestsByEmployee(
-    @Param('id_employee') id_employee: number,
+    @UserRoleInfo('id') user_id: number,
     @Query() paginationDto: PaginationDto,
-  ) {
-    return this.requestService.getRequestsByEmployee(
-      id_employee,
-      paginationDto,
-    );
+  ): Promise<any> {
+    return this.requestService.getRequestsByEmployee(user_id, paginationDto);
   }
 }

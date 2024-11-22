@@ -12,7 +12,7 @@ import {
   PaginationDto,
 } from './request.dto';
 import { Request } from 'src/shared/schema/request.schema';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class RequestService {
@@ -50,6 +50,7 @@ export class RequestService {
 
       return newRequest.save();
     } catch (error) {
+      console.log('error', error.message);
       throw new HttpException(
         error?.response?.data || error,
         error?.response?.data?.statusCode || error?.statusCode || 400,
@@ -81,13 +82,10 @@ export class RequestService {
     }
   }
 
-  async getRequestsByEmployee(
-    id_employee: number,
-    paginationDto: PaginationDto,
-  ) {
+  async getRequestsByEmployee(user_id: number, paginationDto: PaginationDto) {
     const { page = 1, limit = 10, status } = paginationDto;
 
-    const filter: any = { id_employee }; // Lọc theo id_employee
+    const filter: any = { user_id }; // Lọc theo id_employee
 
     if (status) {
       filter.status = status; // Nếu có trạng thái, thêm vào điều kiện lọc
