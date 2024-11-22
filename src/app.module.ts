@@ -18,22 +18,6 @@ dayjs.extend(isSameOrAfter);
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [
-        () => ({
-          cors: {
-            origin: [
-              'http://localhost:3000',
-              'https://develop-time-tracking-ute.vercel.app/',
-              'https://time-tracking-ute.vercel.app/',
-            ],
-            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-            allowedHeaders:
-              'Content-Type, Accept, Authorization, authorization Access-Control-Allow-Origin',
-            credentials: true,
-            preflightContinue: true,
-          },
-        }),
-      ],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
