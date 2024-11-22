@@ -26,6 +26,7 @@ dayjs.extend(isSameOrAfter);
               'https://develop-time-tracking-ute.vercel.app/',
               'https://time-tracking-ute.vercel.app/',
             ],
+            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
             credentials: true,
           },
         }),
