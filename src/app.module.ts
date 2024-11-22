@@ -21,6 +21,7 @@ dayjs.extend(isSameOrAfter);
       load: [
         () => ({
           cors: {
+            allowedHeaders: '*',
             origin: [
               'http://localhost:3000',
               'https://develop-time-tracking-ute.vercel.app/',
