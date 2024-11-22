@@ -172,17 +172,26 @@ export class TimekeepingService {
         date: { $gte: startDate.toDate(), $lte: endDate.toDate() },
       });
 
-      const totalWorkingDays = records.filter(
+      // Lọc bỏ thứ Bảy và Chủ Nhật
+      const filteredRecords = records.filter((record) => {
+        const dayOfWeek = dayjs(record.date).day();
+        return dayOfWeek >= 1 && dayOfWeek <= 5;
+      });
+
+      const totalWorkingDays = filteredRecords.filter(
         (record) => record.status === 'working',
       ).length;
-      const totalLateDays = records.filter(
+
+      const totalLateDays = filteredRecords.filter(
         (record) => record.status === 'late',
       ).length;
-      const totalAbsentDays = records.filter(
+
+      const totalAbsentDays = filteredRecords.filter(
         (record) => record.status === 'absent',
       ).length;
-      const totalLateMinutes = records.reduce(
-        (sum, record) => sum + record.late_minutes,
+
+      const totalLateMinutes = filteredRecords.reduce(
+        (sum, record) => sum + (record.late_minutes || 0),
         0,
       );
 
@@ -192,7 +201,7 @@ export class TimekeepingService {
           totalLateDays,
           totalAbsentDays,
           totalLateMinutes,
-          records,
+          records: filteredRecords,
         },
       };
     } catch (error) {
@@ -224,17 +233,27 @@ export class TimekeepingService {
             dayjs(record.date).isSameOrBefore(monthEnd),
         );
 
-        const totalWorkingDays = monthlyRecords.filter(
+        // Lọc các ngày làm việc (Thứ Hai -> Thứ Sáu)
+        const workingDaysRecords = monthlyRecords.filter((record) => {
+          const dayOfWeek = dayjs(record.date).day(); // Lấy ngày trong tuần
+          return dayOfWeek >= 1 && dayOfWeek <= 5; // Chỉ Thứ Hai đến Thứ Sáu
+        });
+
+        // Tính toán
+        const totalWorkingDays = workingDaysRecords.filter(
           (record) => record.status === 'working',
         ).length;
-        const totalLateDays = monthlyRecords.filter(
+
+        const totalLateDays = workingDaysRecords.filter(
           (record) => record.status === 'late',
         ).length;
-        const totalLateMinutes = monthlyRecords.reduce(
+
+        const totalLateMinutes = workingDaysRecords.reduce(
           (sum, record) => sum + record.late_minutes,
           0,
         );
-        const totalAbsentDays = monthlyRecords.filter(
+
+        const totalAbsentDays = workingDaysRecords.filter(
           (record) => record.status === 'absent',
         ).length;
 
@@ -248,9 +267,10 @@ export class TimekeepingService {
       });
 
       return {
-        data: monthlyStats.reverse(), // Trả về theo thứ tự từ xa đến gần
+        data: monthlyStats.reverse(), // Trả về thứ tự từ xa đến gần
       };
     } catch (error) {
+      console.error('Error:', error.message);
       throw new HttpException(
         error?.response?.data || error,
         error?.response?.data?.statusCode || error?.statusCode || 400,

@@ -33,4 +33,9 @@ export class TimekeepingController {
   ) {
     return this.timekeepingService.getMonthlyReport(user_id, month, year);
   }
+
+  @Get('yearly-report/:user_id')
+  async getYearlyReport(@Param('user_id') user_id: number) {
+    return this.timekeepingService.getYearlyReport(user_id);
+  }
 }
