@@ -217,6 +217,7 @@ export class TimekeepingService {
       return {
         data: {
           user_id,
+          user_code: user.code,
           name: user.full_name,
           position: user.position,
           standardWorkDays,
