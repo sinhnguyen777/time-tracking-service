@@ -5,6 +5,11 @@ import { TimekeepingService } from './timekeeping.service';
 export class TimekeepingController {
   constructor(private readonly timekeepingService: TimekeepingService) {}
 
+  @Get('user/:user_id')
+  async getTimekeepingByEmployee(@Param('user_id') user_id: number) {
+    return this.timekeepingService.getTimekeepingByEmployee(user_id);
+  }
+
   @Post('check-in/:user_id')
   async checkIn(@Param('user_id') user_id: number) {
     return this.timekeepingService.checkIn(user_id);

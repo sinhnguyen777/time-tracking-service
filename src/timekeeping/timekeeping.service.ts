@@ -10,6 +10,32 @@ export class TimekeepingService {
     @InjectModel(Timekeeping.name) private timekeepingModel: Model<Timekeeping>,
   ) {}
 
+  async getTimekeepingByEmployee(user_id: number): Promise<any> {
+    try {
+      const startOfMonth = dayjs().startOf('month').toDate();
+      const endOfMonth = dayjs().endOf('month').toDate();
+      const timekeepingRecords = await this.timekeepingModel
+        .find({
+          user_id,
+          date: { $gte: startOfMonth, $lte: endOfMonth },
+        })
+        .select('date status late_minutes');
+
+      const formattedData = timekeepingRecords.map((record) => ({
+        date: dayjs(record.date).format('YYYY-MM-DD'),
+        status: record.status,
+        late_minutes: record.late_minutes,
+      }));
+
+      return formattedData;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.data || error,
+        error?.response?.data?.statusCode || error?.statusCode || 400,
+      );
+    }
+  }
+
   // Check-in
   async checkIn(user_id: number): Promise<Timekeeping> {
     try {
