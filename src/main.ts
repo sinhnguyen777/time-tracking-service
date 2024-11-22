@@ -16,8 +16,8 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000',
-      'https://develop-time-tracking-ute.vercel.app/',
-      'https://time-tracking-ute.vercel.app/',
+      'https://develop-time-tracking-ute.vercel.app',
+      'https://time-tracking-ute.vercel.app',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders:
