@@ -20,7 +20,8 @@ async function bootstrap() {
       'https://time-tracking-ute.vercel.app/',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Accept, Authorization, authorization',
+    allowedHeaders:
+      'Content-Type, Accept, Authorization, authorization, Access-Control-Allow-Origin',
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe()); // Initialize global validation

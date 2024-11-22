@@ -27,7 +27,8 @@ dayjs.extend(isSameOrAfter);
               'https://time-tracking-ute.vercel.app/',
             ],
             methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-            allowedHeaders: 'Content-Type, Accept, Authorization',
+            allowedHeaders:
+              'Content-Type, Accept, Authorization, authorization Access-Control-Allow-Origin',
             credentials: true,
           },
         }),
