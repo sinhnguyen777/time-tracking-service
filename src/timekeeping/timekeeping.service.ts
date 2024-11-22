@@ -27,7 +27,9 @@ export class TimekeepingService {
         late_minutes: record.late_minutes,
       }));
 
-      return formattedData;
+      return {
+        data: formattedData,
+      };
     } catch (error) {
       throw new HttpException(
         error?.response?.data || error,
