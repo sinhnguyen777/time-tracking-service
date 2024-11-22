@@ -22,7 +22,8 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders:
       'Content-Type, Accept, Authorization, authorization, Access-Control-Allow-Origin',
-    credentials: true,
+    credentials: false,
+    preflightContinue: true,
   });
   app.useGlobalPipes(new ValidationPipe()); // Initialize global validation
   app.enableVersioning({

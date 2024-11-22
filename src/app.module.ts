@@ -30,6 +30,7 @@ dayjs.extend(isSameOrAfter);
             allowedHeaders:
               'Content-Type, Accept, Authorization, authorization Access-Control-Allow-Origin',
             credentials: true,
+            preflightContinue: true,
           },
         }),
       ],
