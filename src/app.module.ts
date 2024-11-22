@@ -10,7 +10,11 @@ import { APP_FILTER } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { TimekeepingModule } from './timekeeping/timekeeping.module';
 import { RequestModule } from './request/request.module';
+import * as utc from 'dayjs/plugin/utc';
+import * as timezone from 'dayjs/plugin/timezone';
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 

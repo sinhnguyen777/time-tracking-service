@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as dayjs from 'dayjs';
+
 import { Timekeeping } from 'src/shared/schema/timekeeping.schema';
 
 @Injectable()
@@ -12,20 +13,24 @@ export class TimekeepingService {
 
   async getTimekeepingByEmployee(user_id: number): Promise<any> {
     try {
-      const startOfMonth = dayjs().startOf('month').toDate();
-      const endOfMonth = dayjs().endOf('month').toDate();
+      // const startOfMonth = dayjs().startOf('month').toDate();
+      // const endOfMonth = dayjs().endOf('month').toDate();
       const timekeepingRecords = await this.timekeepingModel
         .find({
           user_id,
-          date: { $gte: startOfMonth, $lte: endOfMonth },
+          // date: { $gte: startOfMonth, $lte: endOfMonth },
         })
         .select('date status late_minutes');
+
+      console.log('timekeepingRecords', timekeepingRecords);
 
       const formattedData = timekeepingRecords.map((record) => ({
         date: dayjs(record.date).format('YYYY-MM-DD'),
         status: record.status,
         late_minutes: record.late_minutes,
       }));
+
+      console.log('formattedData', formattedData);
 
       return {
         data: formattedData,
@@ -41,8 +46,17 @@ export class TimekeepingService {
   // Check-in
   async checkIn(user_id: number): Promise<Timekeeping> {
     try {
-      const today = dayjs().startOf('day');
-      const tomorrow = dayjs().endOf('day');
+      const today = dayjs().startOf('day').utc();
+      const tomorrow = dayjs().endOf('day').utc();
+
+      // Kiểm tra nếu hôm nay là thứ 7 hoặc Chủ Nhật
+      const dayOfWeek = today.day();
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        throw new HttpException(
+          'Không check-in vào cuối tuần (Thứ 7, Chủ Nhật)',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
 
       const existingRecord = await this.timekeepingModel.findOne({
         user_id,
@@ -51,7 +65,7 @@ export class TimekeepingService {
 
       if (existingRecord) {
         throw new HttpException(
-          'You have already checked in today',
+          'Bạn đã checked-in hôm nay',
           HttpStatus.BAD_REQUEST,
         );
       }
@@ -88,8 +102,17 @@ export class TimekeepingService {
   // Check-out
   async checkOut(user_id: number): Promise<Timekeeping> {
     try {
-      const today = dayjs().startOf('day');
-      const tomorrow = dayjs().endOf('day');
+      const today = dayjs().startOf('day').utc();
+      const tomorrow = dayjs().endOf('day').utc();
+
+      // Kiểm tra nếu hôm nay là thứ 7 hoặc Chủ Nhật
+      const dayOfWeek = today.day();
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        throw new HttpException(
+          'Không check-out vào cuối tuần (Thứ 7, Chủ Nhật)',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
 
       const record = await this.timekeepingModel.findOne({
         user_id,
@@ -98,13 +121,13 @@ export class TimekeepingService {
 
       if (!record) {
         throw new HttpException(
-          'You need to check-in first',
+          'Bạn cần check-in trước',
           HttpStatus.BAD_REQUEST,
         );
       }
 
-      const checkOutTime = dayjs(); // Thời gian check-out hiện tại
-      const workEndTime = dayjs().hour(18).minute(0); // Giờ kết thúc làm việc
+      const checkOutTime = dayjs().utc(); // Thời gian check-out hiện tại
+      const workEndTime = dayjs().utc().hour(18).minute(0); // Giờ kết thúc làm việc
       // const lunchBreakEnd = dayjs().hour(12).minute(0); // Giờ kết thúc nghỉ trưa
       const totalWorkTime = checkOutTime.diff(record.time_check_in, 'minute'); // Tính tổng thời gian làm việc
 

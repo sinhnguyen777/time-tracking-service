@@ -21,7 +21,7 @@ export class Timekeeping {
   @Prop({ required: false })
   time_check_out: Date;
 
-  @Prop({ default: 'working' })
+  @Prop({ default: 'absent' })
   status: string;
 
   @Prop({ default: 0 })

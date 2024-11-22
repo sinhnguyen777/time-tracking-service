@@ -7,9 +7,10 @@ import { UserRequestInfo } from 'src/users/users.decorator';
 export class TimekeepingController {
   constructor(private readonly timekeepingService: TimekeepingService) {}
 
-  @Get('user/:user_id')
-  async getTimekeepingByEmployee(@Param('user_id') user_id: number) {
-    return this.timekeepingService.getTimekeepingByEmployee(user_id);
+  @UseGuards(AuthGuard)
+  @Get('user')
+  async getTimekeepingByEmployee(@UserRequestInfo() user: any): Promise<any> {
+    return this.timekeepingService.getTimekeepingByEmployee(user.id);
   }
 
   @UseGuards(AuthGuard)
