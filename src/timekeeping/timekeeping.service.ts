@@ -52,13 +52,13 @@ export class TimekeepingService {
       const tomorrow = dayjs().endOf('day').utc();
 
       // Kiểm tra nếu hôm nay là thứ 7 hoặc Chủ Nhật
-      // const dayOfWeek = today.day();
-      // if (dayOfWeek === 0 || dayOfWeek === 6) {
-      //   throw new HttpException(
-      //     'Không check-in vào cuối tuần (Thứ 7, Chủ Nhật)',
-      //     HttpStatus.BAD_REQUEST,
-      //   );
-      // }
+      const dayOfWeek = today.day();
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        throw new HttpException(
+          'Không check-in vào cuối tuần (Thứ 7, Chủ Nhật)',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
 
       const existingRecord = await this.timekeepingModel.findOne({
         user_id,
@@ -108,13 +108,13 @@ export class TimekeepingService {
       const tomorrow = dayjs().endOf('day').utc();
 
       // Kiểm tra nếu hôm nay là thứ 7 hoặc Chủ Nhật
-      // const dayOfWeek = today.day();
-      // if (dayOfWeek === 0 || dayOfWeek === 6) {
-      //   throw new HttpException(
-      //     'Không check-out vào cuối tuần (Thứ 7, Chủ Nhật)',
-      //     HttpStatus.BAD_REQUEST,
-      //   );
-      // }
+      const dayOfWeek = today.day();
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        throw new HttpException(
+          'Không check-out vào cuối tuần (Thứ 7, Chủ Nhật)',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
 
       const record = await this.timekeepingModel.findOne({
         user_id,
@@ -183,13 +183,13 @@ export class TimekeepingService {
       });
 
       // Lọc bỏ thứ Bảy và Chủ Nhật
-      // const filteredRecords = records.filter((record) => {
-      //   const dayOfWeek = dayjs(record.date).day();
-      //   return dayOfWeek >= 1 && dayOfWeek <= 5;
-      // });
+      const filteredRecords = records.filter((record) => {
+        const dayOfWeek = dayjs(record.date).day();
+        return dayOfWeek >= 1 && dayOfWeek <= 5;
+      });
 
       // Nếu không loại bỏ thứ Bảy và Chủ Nhật
-      const filteredRecords = records;
+      // const filteredRecords = records;
 
       // Tính toán dữ liệu
       const totalWorkingDays = filteredRecords.filter(
