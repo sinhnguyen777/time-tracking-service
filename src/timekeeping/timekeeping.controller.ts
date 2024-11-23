@@ -38,4 +38,22 @@ export class TimekeepingController {
   async getYearlyReport(@Param('user_id') user_id: number) {
     return this.timekeepingService.getYearlyReport(user_id);
   }
+
+  @Get('late-day/:user_id')
+  async getLateDays(
+    @Param('user_id') user_id: number,
+    @Query('month') month: number,
+    @Query('year') year: number,
+  ) {
+    return this.timekeepingService.getLateDays(user_id, month, year);
+  }
+
+  @Get('absent-day/:user_id')
+  async getAbsentDays(
+    @Param('user_id') user_id: number,
+    @Query('month') month: number,
+    @Query('year') year: number,
+  ) {
+    return this.timekeepingService.getAbsentDays(user_id, month, year);
+  }
 }

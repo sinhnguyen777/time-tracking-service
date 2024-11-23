@@ -12,6 +12,9 @@ export class Timekeeping {
   @Prop({ required: true })
   user_id: number; // ID employee
 
+  @Prop({ required: false })
+  note: string;
+
   @Prop({ required: true })
   date: Date;
 

@@ -318,4 +318,72 @@ export class TimekeepingService {
     }
     return standardDays;
   }
+
+  async getLateDays(user_id: number, month: number, year: number) {
+    try {
+      const startDate = dayjs()
+        .year(year)
+        .month(month - 1)
+        .startOf('month');
+      const endDate = dayjs()
+        .year(year)
+        .month(month - 1)
+        .endOf('month');
+
+      const lateRecords = await this.timekeepingModel.find({
+        user_id,
+        date: { $gte: startDate.toDate(), $lte: endDate.toDate() },
+        status: 'late', // Lọc những ngày có trạng thái 'late'
+      });
+
+      // Map danh sách để trả dữ liệu phù hợp với bảng frontend
+      const lateDays = lateRecords.map((record) => record);
+
+      return {
+        data: lateDays,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.data || error,
+        error?.response?.data?.statusCode || error?.statusCode || 400,
+      );
+    }
+  }
+
+  async getAbsentDays(user_id: number, month: number, year: number) {
+    try {
+      const startDate = dayjs()
+        .year(year)
+        .month(month - 1)
+        .startOf('month');
+      const endDate = dayjs()
+        .year(year)
+        .month(month - 1)
+        .endOf('month');
+
+      const absentRecords = await this.timekeepingModel.find({
+        user_id,
+        date: { $gte: startDate.toDate(), $lte: endDate.toDate() },
+        status: 'absent', // Lọc những ngày có trạng thái 'absent'
+      });
+
+      // Lọc bỏ những ngày Thứ Bảy (6) và Chủ Nhật (0)
+      const filteredAbsentRecords = absentRecords.filter((record) => {
+        const dayOfWeek = dayjs(record.date).day();
+        return dayOfWeek >= 1 && dayOfWeek <= 5; // Chỉ lấy Thứ Hai -> Thứ Sáu
+      });
+
+      // Map danh sách để trả dữ liệu phù hợp với bảng frontend
+      const absentDays = filteredAbsentRecords.map((record) => record);
+
+      return {
+        data: absentDays,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.data || error,
+        error?.response?.data?.statusCode || error?.statusCode || 400,
+      );
+    }
+  }
 }
