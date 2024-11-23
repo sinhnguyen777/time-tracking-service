@@ -349,7 +349,12 @@ export class TimekeepingService {
       return {
         data: {
           user,
-          lateDays,
+          lateDays: lateDays.map((record) => ({
+            ...record.toObject(),
+            date: dayjs(record.date).utc().format('YYYY-MM-DD'),
+            time_check_in: dayjs(record.time_check_in).utc().format('HH:mm'),
+            time_check_out: dayjs(record.time_check_out).utc().format('HH:mm'),
+          })),
         },
       };
     } catch (error) {
@@ -396,7 +401,12 @@ export class TimekeepingService {
       return {
         data: {
           user,
-          absentDays,
+          absentDays: absentDays.map((record) => ({
+            ...record.toObject(),
+            date: dayjs(record.date).utc().format('YYYY-MM-DD'),
+            time_check_in: dayjs(record.time_check_in).utc().format('HH:mm'),
+            time_check_out: dayjs(record.time_check_out).utc().format('HH:mm'),
+          })),
         },
       };
     } catch (error) {
