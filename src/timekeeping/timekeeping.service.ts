@@ -416,4 +416,65 @@ export class TimekeepingService {
       );
     }
   }
+
+  async getMonthlyAbsentDays(user_id: number) {
+    try {
+      const year = dayjs().year();
+      const monthlyAbsentData = await this.timekeepingModel.aggregate([
+        {
+          $match: {
+            user_id: Number(user_id),
+            status: 'absent', // Trạng thái nghỉ
+            date: {
+              $gte: new Date(`${year}-01-01`), // Từ đầu năm
+              $lte: new Date(`${year}-12-31`), // Đến cuối năm
+            },
+            $expr: {
+              $and: [
+                { $ne: [{ $dayOfWeek: '$date' }, 7] }, // Loại bỏ thứ 7
+                { $ne: [{ $dayOfWeek: '$date' }, 1] }, // Loại bỏ Chủ nhật
+              ],
+            },
+          },
+        },
+        {
+          $group: {
+            _id: { $month: '$date' }, // Nhóm theo tháng
+            totalAbsentDays: { $sum: 1 }, // Đếm số ngày nghỉ trong mỗi tháng
+          },
+        },
+        {
+          $sort: { _id: 1 }, // Sắp xếp theo tháng (1 -> 12)
+        },
+      ]);
+
+      console.log('monthlyAbsentData', monthlyAbsentData);
+
+      // Chuyển dữ liệu thành mảng đầy đủ 12 tháng
+      const absentDaysPerMonth = Array.from({ length: 12 }, (_, index) => {
+        // Lấy dữ liệu tháng hiện tại
+        const monthData = monthlyAbsentData.find(
+          (data) => data._id === index + 1,
+        );
+
+        // Nếu có dữ liệu cho tháng đó, lấy số ngày nghỉ, nếu không thì là 0
+        const totalAbsentDays = monthData ? monthData.totalAbsentDays : 0;
+
+        return {
+          month: index + 1,
+          totalAbsentDays, // Trả về số ngày nghỉ trong tháng
+        };
+      });
+
+      return {
+        data: absentDaysPerMonth,
+      };
+    } catch (error) {
+      console.log('errror', error.message);
+      throw new HttpException(
+        error?.response?.data || error,
+        error?.response?.data?.statusCode || error?.statusCode || 400,
+      );
+    }
+  }
 }

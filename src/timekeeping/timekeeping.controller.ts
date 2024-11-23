@@ -56,4 +56,9 @@ export class TimekeepingController {
   ) {
     return this.timekeepingService.getAbsentDays(user_id, month, year);
   }
+
+  @Get('monthly-late-day/:user_id')
+  async getMonthlyAbsentDays(@Param('user_id') user_id: number) {
+    return this.timekeepingService.getMonthlyAbsentDays(user_id);
+  }
 }
