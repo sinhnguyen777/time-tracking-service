@@ -336,11 +336,21 @@ export class TimekeepingService {
         status: 'late', // Lọc những ngày có trạng thái 'late'
       });
 
+      // Lấy thông tin user
+      const user = await this.userModel.findOne({ id: user_id }); // Truy vấn thông tin user
+
+      if (!user) {
+        throw new HttpException('User not found', 404);
+      }
+
       // Map danh sách để trả dữ liệu phù hợp với bảng frontend
       const lateDays = lateRecords.map((record) => record);
 
       return {
-        data: lateDays,
+        data: {
+          user,
+          lateDays,
+        },
       };
     } catch (error) {
       throw new HttpException(
@@ -373,11 +383,21 @@ export class TimekeepingService {
         return dayOfWeek >= 1 && dayOfWeek <= 5; // Chỉ lấy Thứ Hai -> Thứ Sáu
       });
 
+      // Lấy thông tin user
+      const user = await this.userModel.findOne({ id: user_id }); // Truy vấn thông tin user
+
+      if (!user) {
+        throw new HttpException('User not found', 404);
+      }
+
       // Map danh sách để trả dữ liệu phù hợp với bảng frontend
       const absentDays = filteredAbsentRecords.map((record) => record);
 
       return {
-        data: absentDays,
+        data: {
+          user,
+          absentDays,
+        },
       };
     } catch (error) {
       throw new HttpException(
