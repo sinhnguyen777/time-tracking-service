@@ -52,13 +52,13 @@ export class TimekeepingService {
       const tomorrow = dayjs().endOf('day').utc();
 
       // Kiểm tra nếu hôm nay là thứ 7 hoặc Chủ Nhật
-      const dayOfWeek = today.day();
-      if (dayOfWeek === 0 || dayOfWeek === 6) {
-        throw new HttpException(
-          'Không check-in vào cuối tuần (Thứ 7, Chủ Nhật)',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+      // const dayOfWeek = today.day();
+      // if (dayOfWeek === 0 || dayOfWeek === 6) {
+      //   throw new HttpException(
+      //     'Không check-in vào cuối tuần (Thứ 7, Chủ Nhật)',
+      //     HttpStatus.BAD_REQUEST,
+      //   );
+      // }
 
       const existingRecord = await this.timekeepingModel.findOne({
         user_id,
